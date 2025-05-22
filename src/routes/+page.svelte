@@ -1,2 +1,33 @@
-<h1>Welcome to SvelteKit</h1>
-<p>Visit <a href="https://svelte.dev/docs/kit">svelte.dev/docs/kit</a> to read the documentation</p>
+<script lang="ts">
+	import Canvas, { type BackgroundOptions } from '$lib/components/Canvas.svelte';
+	import FileDropZone from '$lib/components/FileDropZone.svelte';
+
+	let backgroundImageFile = $state<File | null>(null);
+	let backgroundOptions = $state<BackgroundOptions>({
+		repeat: false
+	});
+	let foregroundImageFile = $state<File | null>(null);
+</script>
+
+<header class="prose mb-8">
+	<h1>Squarerizer</h1>
+</header>
+
+<div class="mb-8 flex gap-8">
+	<FileDropZone bind:file={foregroundImageFile} title="Main Image" />
+	<FileDropZone bind:file={backgroundImageFile} title="Background Image" />
+	<div class="flex w-48 flex-col gap-2">
+		<p class="text-lg font-medium">Background Options</p>
+		<label class="flex items-center gap-2">
+			<input type="checkbox" bind:checked={backgroundOptions.repeat} /> Repeat
+		</label>
+	</div>
+</div>
+
+<div style="zoom: 0.5">
+	<Canvas
+		background={backgroundImageFile}
+		backgroundOptions={{ ...backgroundOptions }}
+		foreground={foregroundImageFile}
+	/>
+</div>
