@@ -25,10 +25,6 @@
 				throw new Error('Failed to get canvas context');
 			}
 
-			// Clear the canvas
-			ctx.fillStyle = '#ccc';
-			ctx.fillRect(0, 0, canvas.width, canvas.height);
-
 			// Load images
 			const backgroundSrc = background
 				? URL.createObjectURL(new Blob([background], { type: background.type }))
@@ -42,6 +38,10 @@
 
 			// Draw images after they have all been loaded
 			Promise.all([backgroundPromise, foregroundPromise]).then(([backgroundImg, foregroundImg]) => {
+				// Clear the canvas
+				ctx.fillStyle = '#ccc';
+				ctx.fillRect(0, 0, canvas.width, canvas.height);
+
 				// Apply background filter
 				const prevFilter = ctx.filter;
 				if (backgroundOptions.blur) {
