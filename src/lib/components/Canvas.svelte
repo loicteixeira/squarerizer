@@ -1,5 +1,6 @@
 <script lang="ts">
 	export type BackgroundOptions = {
+		blur: boolean;
 		repeat: boolean;
 		reuseForeground: boolean;
 	};
@@ -41,6 +42,13 @@
 
 			// Draw images after they have all been loaded
 			Promise.all([backgroundPromise, foregroundPromise]).then(([backgroundImg, foregroundImg]) => {
+				// Apply background filter
+				const prevFilter = ctx.filter;
+				if (backgroundOptions.blur) {
+					ctx.filter = 'blur(16px)';
+				}
+
+				// Draw background image
 				if (foregroundImg && backgroundOptions.reuseForeground) {
 					const srcSize = getImageSize(foregroundImg);
 					const targetSize = getImageSize(foregroundImg, {
@@ -67,6 +75,11 @@
 						drawImage(backgroundImg, ctx, srcSize, targetSize);
 					}
 				}
+
+				// Reset filter before drawing foreground
+				ctx.filter = prevFilter;
+
+				// Draw foreground image
 				if (foregroundImg) {
 					const srcSize = getImageSize(foregroundImg);
 					const targetSize = getImageSize(foregroundImg, {
@@ -131,7 +144,10 @@
 					width = img.width * aspectRatio;
 				}
 
-				return { x: 0, y: 0, w: width, h: height };
+				const x = (options.canvasWidth - width) / 2;
+				const y = (options.canvasHeight - height) / 2;
+
+				return { x, y, w: width, h: height };
 			}
 			default:
 				return { x: 0, y: 0, w: img.width, h: img.height };

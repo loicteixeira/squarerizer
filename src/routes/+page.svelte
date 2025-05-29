@@ -4,6 +4,7 @@
 
 	let backgroundImageFile = $state<File | null>(null);
 	let backgroundOptions = $state<BackgroundOptions>({
+		blur: false,
 		repeat: false,
 		reuseForeground: false
 	});
@@ -19,6 +20,9 @@
 	<FileDropZone bind:file={backgroundImageFile} title="Background Image" />
 	<div class="flex w-48 flex-col gap-2">
 		<p class="text-lg font-medium">Background Options</p>
+		<label class="flex items-center gap-2">
+			<input type="checkbox" bind:checked={backgroundOptions.blur} /> Blur
+		</label>
 		<label class="flex items-center gap-2">
 			<input type="checkbox" bind:checked={backgroundOptions.repeat} /> Repeat
 		</label>
