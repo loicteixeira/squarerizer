@@ -1,6 +1,7 @@
 <script lang="ts">
 	export type BackgroundOptions = {
 		repeat: boolean;
+		reuseForeground: boolean;
 	};
 
 	type Props = {
@@ -40,8 +41,15 @@
 
 			// Draw images after they have all been loaded
 			Promise.all([backgroundPromise, foregroundPromise]).then(([backgroundImg, foregroundImg]) => {
-				if (backgroundImg) {
-					console.log(backgroundOptions.repeat);
+				if (foregroundImg && backgroundOptions.reuseForeground) {
+					const srcSize = getImageSize(foregroundImg);
+					const targetSize = getImageSize(foregroundImg, {
+						mode: 'cover',
+						canvasWidth: canvas.width,
+						canvasHeight: canvas.height
+					});
+					drawImage(foregroundImg, ctx, srcSize, targetSize);
+				} else if (backgroundImg) {
 					if (backgroundOptions.repeat) {
 						drawPattern(backgroundImg, ctx, {
 							x: 0,
@@ -50,11 +58,23 @@
 							h: canvas.height
 						});
 					} else {
-						drawImage(backgroundImg, canvas, ctx);
+						const srcSize = getImageSize(backgroundImg);
+						const targetSize = getImageSize(backgroundImg, {
+							mode: 'contain',
+							canvasWidth: canvas.width,
+							canvasHeight: canvas.height
+						});
+						drawImage(backgroundImg, ctx, srcSize, targetSize);
 					}
 				}
 				if (foregroundImg) {
-					drawImage(foregroundImg, canvas, ctx);
+					const srcSize = getImageSize(foregroundImg);
+					const targetSize = getImageSize(foregroundImg, {
+						mode: 'contain',
+						canvasWidth: canvas.width,
+						canvasHeight: canvas.height
+					});
+					drawImage(foregroundImg, ctx, srcSize, targetSize);
 				}
 			});
 		};
@@ -69,28 +89,72 @@
 		});
 	}
 
+	function getImageSize(
+		img: HTMLImageElement,
+		options?: {
+			mode: 'contain' | 'cover';
+			canvasWidth: number;
+			canvasHeight: number;
+		}
+	): Rect {
+		switch (options?.mode) {
+			case 'contain': {
+				const aspectRatio = img.width / img.height;
+
+				let width, height;
+				if (aspectRatio < 1) {
+					// Portrait
+					height = img.height > options.canvasHeight ? options.canvasHeight : img.height;
+					width = height * aspectRatio;
+				} else {
+					// Landscape
+					width = img.width > options.canvasWidth ? options.canvasWidth : img.width;
+					height = width / aspectRatio;
+				}
+
+				const x = (options.canvasWidth - width) / 2;
+				const y = (options.canvasHeight - height) / 2;
+
+				return { x, y, w: width, h: height };
+			}
+			case 'cover': {
+				const aspectRatio = img.width / img.height;
+
+				let width, height;
+				if (aspectRatio < 1) {
+					// Portrait
+					width = options.canvasWidth;
+					height = width / aspectRatio;
+				} else {
+					// Landscape
+					height = options.canvasHeight;
+					width = img.width * aspectRatio;
+				}
+
+				return { x: 0, y: 0, w: width, h: height };
+			}
+			default:
+				return { x: 0, y: 0, w: img.width, h: img.height };
+		}
+	}
+
 	function drawImage(
 		img: HTMLImageElement,
-		canvas: HTMLCanvasElement,
-		ctx: CanvasRenderingContext2D
+		ctx: CanvasRenderingContext2D,
+		sourceRect: Rect,
+		targetRect: Rect
 	) {
-		const aspectRatio = img.width / img.height;
-
-		let targetWidth, targetHeight;
-		if (aspectRatio < 1) {
-			// Portrait
-			targetHeight = img.height > canvas.height ? canvas.height : img.height;
-			targetWidth = targetHeight * aspectRatio;
-		} else {
-			// Landscape
-			targetWidth = img.width > canvas.width ? canvas.width : img.width;
-			targetHeight = targetWidth / aspectRatio;
-		}
-
-		const targetX = canvas.width / 2 - targetWidth / 2;
-		const targetY = canvas.height / 2 - targetHeight / 2;
-
-		ctx.drawImage(img, 0, 0, img.width, img.height, targetX, targetY, targetWidth, targetHeight);
+		ctx.drawImage(
+			img,
+			sourceRect.x,
+			sourceRect.y,
+			sourceRect.w,
+			sourceRect.h,
+			targetRect.x,
+			targetRect.y,
+			targetRect.w,
+			targetRect.h
+		);
 	}
 
 	function drawPattern(img: HTMLImageElement, ctx: CanvasRenderingContext2D, rect: Rect) {

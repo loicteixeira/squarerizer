@@ -4,7 +4,8 @@
 
 	let backgroundImageFile = $state<File | null>(null);
 	let backgroundOptions = $state<BackgroundOptions>({
-		repeat: false
+		repeat: false,
+		reuseForeground: false
 	});
 	let foregroundImageFile = $state<File | null>(null);
 </script>
@@ -20,6 +21,9 @@
 		<p class="text-lg font-medium">Background Options</p>
 		<label class="flex items-center gap-2">
 			<input type="checkbox" bind:checked={backgroundOptions.repeat} /> Repeat
+		</label>
+		<label class="flex items-center gap-2">
+			<input type="checkbox" bind:checked={backgroundOptions.reuseForeground} /> Reuse Foreground
 		</label>
 	</div>
 </div>
