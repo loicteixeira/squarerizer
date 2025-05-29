@@ -1,4 +1,6 @@
 <script lang="ts">
+	import 'context-filter-polyfill';
+
 	export type BackgroundOptions = {
 		blur: boolean;
 		repeat: boolean;
