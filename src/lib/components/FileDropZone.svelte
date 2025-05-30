@@ -1,6 +1,6 @@
 <script lang="ts">
-	type Props = { file: File | null; title: string };
-	let { file = $bindable(), title }: Props = $props();
+	type Props = { file: File | null; disabledText?: string; title: string };
+	let { file = $bindable(), disabledText, title }: Props = $props();
 
 	let preview = $derived(file ? URL.createObjectURL(file) : null);
 
@@ -21,14 +21,20 @@
 <div class="flex w-48 flex-col gap-2">
 	<div class="flex justify-between">
 		<p class="text-lg font-medium">{title}</p>
-		{#if preview}
+		{#if preview && !disabledText}
 			<button name="Remove main image" onclick={onDelete}>
 				<span class="not-sr-only">🗑️</span>
 			</button>
 		{/if}
 	</div>
-	<div class="h-48 w-48">
-		{#if preview}
+	<div class="relative h-48 w-48">
+		{#if disabledText}
+			<div
+				class="absolute inset-0 flex items-center justify-center rounded-md border-2 border-dashed border-red-300 bg-red-50 p-4 text-center text-red-600"
+			>
+				{disabledText}
+			</div>
+		{:else if preview}
 			<div
 				class="flex h-full w-full justify-center rounded-md border-2 border-dashed border-gray-300 bg-gray-50 p-2"
 			>

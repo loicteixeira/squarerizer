@@ -10,6 +10,12 @@
 		reuseForeground: false
 	});
 	let foregroundImageFile = $state<File | null>(null);
+
+	let disabledBackgroundWarning = $derived(
+		backgroundOptions.reuseForeground
+			? 'Not applicable with “Reuse Foreground” option selected'
+			: ''
+	);
 </script>
 
 <header class="prose mb-8">
@@ -18,7 +24,11 @@
 
 <div class="mb-8 flex gap-8">
 	<FileDropZone bind:file={foregroundImageFile} title="Main Image" />
-	<FileDropZone bind:file={backgroundImageFile} title="Background Image" />
+	<FileDropZone
+		bind:file={backgroundImageFile}
+		title="Background Image"
+		disabledText={disabledBackgroundWarning}
+	/>
 	<div class="flex flex-col gap-2">
 		<p class="text-lg font-medium">Background Options</p>
 		<label class="relative mb-4 flex justify-between gap-4">
