@@ -4,7 +4,7 @@
 
 	let backgroundImageFile = $state<File | null>(null);
 	let backgroundOptions = $state<BackgroundOptions>({
-		blur: false,
+		blur: 0,
 		repeat: false,
 		reuseForeground: false
 	});
@@ -21,7 +21,15 @@
 	<div class="flex w-48 flex-col gap-2">
 		<p class="text-lg font-medium">Background Options</p>
 		<label class="flex items-center gap-2">
-			<input type="checkbox" bind:checked={backgroundOptions.blur} /> Blur
+			Blur
+			<input
+				id="input"
+				type="range"
+				min="0"
+				max="16"
+				step="2"
+				bind:value={backgroundOptions.blur}
+			/>
 		</label>
 		<label class="flex items-center gap-2">
 			<input type="checkbox" bind:checked={backgroundOptions.repeat} /> Repeat

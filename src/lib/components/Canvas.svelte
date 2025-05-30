@@ -2,7 +2,7 @@
 	import 'context-filter-polyfill';
 
 	export type BackgroundOptions = {
-		blur: boolean;
+		blur: number;
 		repeat: boolean;
 		reuseForeground: boolean;
 	};
@@ -84,8 +84,8 @@
 
 		// Apply background filter
 		const prevFilter = ctx.filter;
-		if (backgroundOptions.blur) {
-			ctx.filter = 'blur(16px)';
+		if (backgroundOptions.blur !== 0) {
+			ctx.filter = `blur(${backgroundOptions.blur.toFixed(0)}px)`;
 		}
 
 		if (options.repeat) {
