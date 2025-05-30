@@ -27,9 +27,7 @@
 	}: Pick<Props, 'background' | 'backgroundOptions' | 'foreground'>) {
 		return (canvas: HTMLCanvasElement) => {
 			const ctx = canvas.getContext('2d');
-			if (!ctx) {
-				throw new Error('Failed to get canvas context');
-			}
+			if (!ctx) throw new Error('Failed to get canvas context');
 
 			// Load the images first (async), and only then draw them to avoid out of order painting
 			const imagePromises = [loadImage(background), loadImage(foreground)];
@@ -50,9 +48,7 @@
 	}
 
 	function loadImage(file: File | null): Promise<HTMLImageElement | null> {
-		if (!file) {
-			return Promise.resolve(null);
-		}
+		if (!file) return Promise.resolve(null);
 
 		const src = URL.createObjectURL(new Blob([file], { type: file.type }));
 		return new Promise((resolve, reject) => {
@@ -64,9 +60,7 @@
 	}
 
 	function drawForeground(image: HTMLImageElement | null, ctx: CanvasRenderingContext2D) {
-		if (!image) {
-			return;
-		}
+		if (!image) return;
 
 		const srcSize = getImageSize(image);
 		const targetSize = getImageSize(image, {
@@ -82,9 +76,7 @@
 		ctx: CanvasRenderingContext2D,
 		options: BackgroundOptions
 	) {
-		if (!image) {
-			return;
-		}
+		if (!image) return;
 
 		// Apply background filter
 		const prevFilter = ctx.filter;
@@ -193,9 +185,8 @@
 
 	function drawPattern(img: HTMLImageElement, ctx: CanvasRenderingContext2D, rect: Rect) {
 		const pattern = ctx.createPattern(img, 'repeat');
-		if (!pattern) {
-			throw new Error('Failed to create pattern');
-		}
+		if (!pattern) throw new Error('Failed to create pattern');
+
 		ctx.fillStyle = pattern;
 		ctx.fillRect(rect.x, rect.y, rect.w, rect.h);
 	}
