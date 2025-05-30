@@ -5,6 +5,7 @@
 	let backgroundImageFile = $state<File | null>(null);
 	let backgroundOptions = $state<BackgroundOptions>({
 		blur: 0,
+		brightness: 100,
 		repeat: false,
 		reuseForeground: false
 	});
@@ -29,6 +30,17 @@
 				max="16"
 				step="2"
 				bind:value={backgroundOptions.blur}
+			/>
+		</label>
+		<label class="flex items-center gap-2">
+			Darken/Brighten
+			<input
+				id="input"
+				type="range"
+				min="70"
+				max="130"
+				step="5"
+				bind:value={backgroundOptions.brightness}
 			/>
 		</label>
 		<label class="flex items-center gap-2">

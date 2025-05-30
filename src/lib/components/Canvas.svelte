@@ -3,6 +3,7 @@
 
 	export type BackgroundOptions = {
 		blur: number;
+		brightness: number;
 		repeat: boolean;
 		reuseForeground: boolean;
 	};
@@ -84,10 +85,17 @@
 
 		// Apply background filter
 		const prevFilter = ctx.filter;
-		if (backgroundOptions.blur !== 0) {
-			ctx.filter = `blur(${backgroundOptions.blur.toFixed(0)}px)`;
-		}
 
+		const filters: string[] = [];
+		if (backgroundOptions.blur !== 0) {
+			filters.push(`blur(${backgroundOptions.blur.toFixed(0)}px)`);
+		}
+		if (backgroundOptions.brightness !== 100) {
+			filters.push(`brightness(${backgroundOptions.brightness}%)`);
+		}
+		ctx.filter = filters.length > 0 ? filters.join(' ') : 'none';
+
+		// Draw the image
 		if (options.repeat) {
 			drawPattern(image, ctx, {
 				x: 0,
