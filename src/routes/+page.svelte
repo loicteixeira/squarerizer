@@ -23,7 +23,7 @@
 </header>
 
 <div class="mb-8 flex gap-8">
-	<FileDropZone bind:file={foregroundImageFile} title="Main Image" />
+	<FileDropZone bind:file={foregroundImageFile} title="Foreground Image" />
 	<FileDropZone
 		bind:file={backgroundImageFile}
 		title="Background Image"
