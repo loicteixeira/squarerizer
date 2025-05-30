@@ -6,3 +6,7 @@
 html {
 	scrollbar-gutter: stable;
 }
+
+.zoom-half {
+	zoom: 0.5;
+}

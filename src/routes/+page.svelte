@@ -83,10 +83,11 @@
 	</div>
 </div>
 
-<div style="zoom: 0.5">
+<div>
 	<Canvas
 		background={backgroundImageFile}
 		backgroundOptions={{ ...backgroundOptions }}
 		foreground={foregroundImageFile}
+		class="zoom-half"
 	/>
 </div>

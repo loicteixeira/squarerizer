@@ -11,9 +11,12 @@
 	type Props = {
 		background: File | null;
 		backgroundOptions: BackgroundOptions;
+		class?: string;
 		foreground: File | null;
 	};
-	let { background, backgroundOptions, foreground }: Props = $props();
+	let { background, backgroundOptions, class: klass, foreground }: Props = $props();
+
+	let canvasRef: HTMLCanvasElement | null = null;
 
 	type Rect = { x: number; y: number; w: number; h: number };
 
@@ -196,12 +199,33 @@
 		ctx.fillStyle = pattern;
 		ctx.fillRect(rect.x, rect.y, rect.w, rect.h);
 	}
+
+	function handleDownload(e: Event) {
+		e.preventDefault();
+		if (!canvasRef) return;
+		const url = canvasRef.toDataURL('image/png');
+		const a = document.createElement('a');
+		a.href = url;
+		a.download = 'squarerizer.png';
+		document.body.appendChild(a);
+		a.click();
+		document.body.removeChild(a);
+	}
 </script>
 
-<div class="inline-block rounded-md border-2 border-gray-300 p-2">
-	<canvas
-		{@attach createCanvas({ background, backgroundOptions, foreground })}
-		width="1080"
-		height="1080"
-	></canvas>
+<div class="inline-flex flex-col items-end gap-4">
+	<div class="inline-block rounded-md border-2 border-gray-300 p-2">
+		<canvas
+			bind:this={canvasRef}
+			{@attach createCanvas({ background, backgroundOptions, foreground })}
+			width="1080"
+			height="1080"
+			class={klass}
+		></canvas>
+	</div>
+	<button
+		type="button"
+		class="mb-2 rounded-lg bg-blue-700 px-5 py-2.5 text-sm font-medium text-white hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 focus:outline-none dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+		onclick={handleDownload}>Download</button
+	>
 </div>
