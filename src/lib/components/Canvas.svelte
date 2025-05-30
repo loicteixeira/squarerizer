@@ -27,75 +27,30 @@
 				throw new Error('Failed to get canvas context');
 			}
 
-			// Load images
-			const backgroundSrc = background
-				? URL.createObjectURL(new Blob([background], { type: background.type }))
-				: null;
-			const backgroundPromise = backgroundSrc ? loadImage(backgroundSrc) : Promise.resolve(null);
-
-			const foregroundSrc = foreground
-				? URL.createObjectURL(new Blob([foreground], { type: foreground.type }))
-				: null;
-			const foregroundPromise = foregroundSrc ? loadImage(foregroundSrc) : Promise.resolve(null);
-
-			// Draw images after they have all been loaded
-			Promise.all([backgroundPromise, foregroundPromise]).then(([backgroundImg, foregroundImg]) => {
+			// Load the images first (async), and only then draw them to avoid out of order painting
+			const imagePromises = [loadImage(background), loadImage(foreground)];
+			Promise.all(imagePromises).then(([backgroundImg, foregroundImg]) => {
 				// Clear the canvas
 				ctx.fillStyle = '#ccc';
 				ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-				// Apply background filter
-				const prevFilter = ctx.filter;
-				if (backgroundOptions.blur) {
-					ctx.filter = 'blur(16px)';
-				}
-
-				// Draw background image
-				if (foregroundImg && backgroundOptions.reuseForeground) {
-					const srcSize = getImageSize(foregroundImg);
-					const targetSize = getImageSize(foregroundImg, {
-						mode: 'cover',
-						canvasWidth: canvas.width,
-						canvasHeight: canvas.height
-					});
-					drawImage(foregroundImg, ctx, srcSize, targetSize);
-				} else if (backgroundImg) {
-					if (backgroundOptions.repeat) {
-						drawPattern(backgroundImg, ctx, {
-							x: 0,
-							y: 0,
-							w: canvas.width,
-							h: canvas.height
-						});
-					} else {
-						const srcSize = getImageSize(backgroundImg);
-						const targetSize = getImageSize(backgroundImg, {
-							mode: 'contain',
-							canvasWidth: canvas.width,
-							canvasHeight: canvas.height
-						});
-						drawImage(backgroundImg, ctx, srcSize, targetSize);
-					}
-				}
-
-				// Reset filter before drawing foreground
-				ctx.filter = prevFilter;
-
-				// Draw foreground image
-				if (foregroundImg) {
-					const srcSize = getImageSize(foregroundImg);
-					const targetSize = getImageSize(foregroundImg, {
-						mode: 'contain',
-						canvasWidth: canvas.width,
-						canvasHeight: canvas.height
-					});
-					drawImage(foregroundImg, ctx, srcSize, targetSize);
-				}
+				// Draw images
+				drawBackground(
+					backgroundOptions.reuseForeground ? foregroundImg : backgroundImg,
+					ctx,
+					backgroundOptions
+				);
+				drawForeground(foregroundImg, ctx);
 			});
 		};
 	}
 
-	function loadImage(src: string): Promise<HTMLImageElement> {
+	function loadImage(file: File | null): Promise<HTMLImageElement | null> {
+		if (!file) {
+			return Promise.resolve(null);
+		}
+
+		const src = URL.createObjectURL(new Blob([file], { type: file.type }));
 		return new Promise((resolve, reject) => {
 			const img = new Image();
 			img.onload = () => resolve(img);
@@ -104,12 +59,62 @@
 		});
 	}
 
+	function drawForeground(image: HTMLImageElement | null, ctx: CanvasRenderingContext2D) {
+		if (!image) {
+			return;
+		}
+
+		const srcSize = getImageSize(image);
+		const targetSize = getImageSize(image, {
+			mode: 'contain',
+			maxWidth: ctx.canvas.width,
+			maxHeight: ctx.canvas.height
+		});
+		drawImage(image, ctx, srcSize, targetSize);
+	}
+
+	function drawBackground(
+		image: HTMLImageElement | null,
+		ctx: CanvasRenderingContext2D,
+		options: BackgroundOptions
+	) {
+		if (!image) {
+			return;
+		}
+
+		// Apply background filter
+		const prevFilter = ctx.filter;
+		if (backgroundOptions.blur) {
+			ctx.filter = 'blur(16px)';
+		}
+
+		if (options.repeat) {
+			drawPattern(image, ctx, {
+				x: 0,
+				y: 0,
+				w: ctx.canvas.width,
+				h: ctx.canvas.height
+			});
+		} else {
+			const srcSize = getImageSize(image);
+			const targetSize = getImageSize(image, {
+				mode: options.reuseForeground ? 'cover' : 'contain',
+				maxWidth: ctx.canvas.width,
+				maxHeight: ctx.canvas.height
+			});
+			drawImage(image, ctx, srcSize, targetSize);
+		}
+
+		// Reset filter before drawing foreground
+		ctx.filter = prevFilter;
+	}
+
 	function getImageSize(
 		img: HTMLImageElement,
 		options?: {
 			mode: 'contain' | 'cover';
-			canvasWidth: number;
-			canvasHeight: number;
+			maxWidth: number;
+			maxHeight: number;
 		}
 	): Rect {
 		switch (options?.mode) {
@@ -119,16 +124,16 @@
 				let width, height;
 				if (aspectRatio < 1) {
 					// Portrait
-					height = img.height > options.canvasHeight ? options.canvasHeight : img.height;
+					height = img.height > options.maxHeight ? options.maxHeight : img.height;
 					width = height * aspectRatio;
 				} else {
 					// Landscape
-					width = img.width > options.canvasWidth ? options.canvasWidth : img.width;
+					width = img.width > options.maxWidth ? options.maxWidth : img.width;
 					height = width / aspectRatio;
 				}
 
-				const x = (options.canvasWidth - width) / 2;
-				const y = (options.canvasHeight - height) / 2;
+				const x = (options.maxWidth - width) / 2;
+				const y = (options.maxHeight - height) / 2;
 
 				return { x, y, w: width, h: height };
 			}
@@ -138,16 +143,16 @@
 				let width, height;
 				if (aspectRatio < 1) {
 					// Portrait
-					width = options.canvasWidth;
+					width = options.maxWidth;
 					height = width / aspectRatio;
 				} else {
 					// Landscape
-					height = options.canvasHeight;
+					height = options.maxHeight;
 					width = img.width * aspectRatio;
 				}
 
-				const x = (options.canvasWidth - width) / 2;
-				const y = (options.canvasHeight - height) / 2;
+				const x = (options.maxWidth - width) / 2;
+				const y = (options.maxHeight - height) / 2;
 
 				return { x, y, w: width, h: height };
 			}
