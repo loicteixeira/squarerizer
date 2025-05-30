@@ -6,6 +6,7 @@
 		brightness: number;
 		repeat: boolean;
 		reuseForeground: boolean;
+		scale: number;
 	};
 
 	type Props = {
@@ -92,12 +93,17 @@
 
 		// Draw the image
 		if (options.repeat) {
-			drawPattern(image, ctx, {
-				x: 0,
-				y: 0,
-				w: ctx.canvas.width,
-				h: ctx.canvas.height
-			});
+			drawPattern(
+				image,
+				ctx,
+				{
+					x: 0,
+					y: 0,
+					w: ctx.canvas.width,
+					h: ctx.canvas.height
+				},
+				options.scale
+			);
 		} else {
 			const srcSize = getImageSize(image);
 			const targetSize = getImageSize(image, {
@@ -105,7 +111,7 @@
 				maxWidth: ctx.canvas.width,
 				maxHeight: ctx.canvas.height
 			});
-			drawImage(image, ctx, srcSize, targetSize);
+			drawImage(image, ctx, srcSize, targetSize, options.scale);
 		}
 
 		// Reset filter before drawing foreground
@@ -168,27 +174,50 @@
 		img: HTMLImageElement,
 		ctx: CanvasRenderingContext2D,
 		sourceRect: Rect,
-		targetRect: Rect
+		targetRect: Rect,
+		scale: number = 1
 	) {
+		const centerX = targetRect.x + targetRect.w / 2;
+		const centerY = targetRect.y + targetRect.h / 2;
+
+		ctx.save();
+		ctx.translate(centerX, centerY);
+		ctx.scale(scale, scale);
 		ctx.drawImage(
 			img,
 			sourceRect.x,
 			sourceRect.y,
 			sourceRect.w,
 			sourceRect.h,
-			targetRect.x,
-			targetRect.y,
+			-targetRect.w / 2,
+			-targetRect.h / 2,
 			targetRect.w,
 			targetRect.h
 		);
+		ctx.restore();
 	}
 
-	function drawPattern(img: HTMLImageElement, ctx: CanvasRenderingContext2D, rect: Rect) {
+	function drawPattern(
+		img: HTMLImageElement,
+		ctx: CanvasRenderingContext2D,
+		rect: Rect,
+		scale: number = 1
+	) {
+		// Prepare the pattern
 		const pattern = ctx.createPattern(img, 'repeat');
 		if (!pattern) throw new Error('Failed to create pattern');
 
+		// Apply scaling to the pattern
+		const matrix = new DOMMatrix();
+		matrix.a = scale;
+		matrix.d = scale;
+		pattern.setTransform(matrix);
+
+		// Draw the pattern
+		ctx.save();
 		ctx.fillStyle = pattern;
 		ctx.fillRect(rect.x, rect.y, rect.w, rect.h);
+		ctx.restore();
 	}
 
 	function handleDownload(e: Event) {
