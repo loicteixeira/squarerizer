@@ -234,7 +234,7 @@
 </script>
 
 <div class="inline-flex flex-col items-end gap-4">
-	<div class="inline-block rounded-md border-2 border-gray-300 p-2">
+	<div class="inline-block w-[560px] rounded-md border-2 border-gray-300 p-2">
 		<canvas
 			bind:this={canvasRef}
 			{@attach createCanvas({ background, backgroundOptions, foreground })}
