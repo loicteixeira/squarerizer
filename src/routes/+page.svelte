@@ -55,14 +55,14 @@
 				<input
 					id="input"
 					type="range"
-					min="70"
-					max="130"
+					min="50"
+					max="150"
 					step="5"
 					bind:value={backgroundOptions.brightness}
 				/>
-				<span class="absolute start-0 -bottom-4 text-sm text-gray-500 dark:text-gray-400">-30%</span
+				<span class="absolute start-0 -bottom-4 text-sm text-gray-500 dark:text-gray-400">-50%</span
 				>
-				<span class="absolute end-0 -bottom-4 text-sm text-gray-500 dark:text-gray-400">+30%</span>
+				<span class="absolute end-0 -bottom-4 text-sm text-gray-500 dark:text-gray-400">+50%</span>
 			</div>
 		</label>
 		<label class="flex cursor-pointer justify-between gap-4">
