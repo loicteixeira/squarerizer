@@ -9,6 +9,7 @@ export const defaultBackgroundOptions: BackgroundOptions = {
 };
 
 export const defaultForegroundOptions: ForegroundOptions = {
+	mode: 'contain',
 	position: 'center'
 };
 
@@ -66,7 +67,7 @@ function drawForeground(
 
 	const srcSize = getImageSize(image);
 	const targetSize = getImageSize(image, {
-		mode: 'contain',
+		...options,
 		maxWidth: ctx.canvas.width,
 		maxHeight: ctx.canvas.height
 	});
@@ -109,9 +110,11 @@ function drawBackground(
 		const srcSize = getImageSize(image);
 		const targetSize = getImageSize(image, {
 			mode: options.reuseForeground ? 'cover' : 'contain',
+			position: 'center',
 			maxWidth: ctx.canvas.width,
 			maxHeight: ctx.canvas.height
 		});
+		console.log({ srcSize, targetSize });
 		drawImage(image, ctx, srcSize, targetSize, options.scale);
 	}
 
@@ -121,11 +124,18 @@ function drawBackground(
 
 function getImageSize(
 	img: HTMLImageElement,
-	options?: {
-		mode: 'contain' | 'cover';
-		maxWidth: number;
-		maxHeight: number;
-	}
+	options?:
+		| {
+				mode: 'cover';
+				position: 'start' | 'center' | 'end';
+				maxWidth: number;
+				maxHeight: number;
+		  }
+		| {
+				mode: 'contain';
+				maxWidth: number;
+				maxHeight: number;
+		  }
 ): Rect {
 	switch (options?.mode) {
 		case 'contain': {
@@ -161,8 +171,22 @@ function getImageSize(
 				width = img.width * aspectRatio;
 			}
 
-			const x = (options.maxWidth - width) / 2;
-			const y = (options.maxHeight - height) / 2;
+			let x, y;
+			switch (options.position) {
+				case 'start':
+					x = 0;
+					y = 0;
+					break;
+				case 'end':
+					x = options.maxWidth - width;
+					y = options.maxHeight - height;
+					break;
+				case 'center':
+				default:
+					x = (options.maxWidth - width) / 2;
+					y = (options.maxHeight - height) / 2;
+					break;
+			}
 
 			return { x, y, w: width, h: height };
 		}

@@ -10,3 +10,7 @@ html {
 .zoom-half {
 	zoom: 0.5;
 }
+
+.zoom-sixth {
+	zoom: 0.16667;
+}

@@ -7,6 +7,7 @@ export type BackgroundOptions = {
 };
 
 export type ForegroundOptions = {
+	mode: 'contain' | 'cover';
 	position: 'start' | 'center' | 'end';
 };
 

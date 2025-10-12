@@ -1,5 +1,10 @@
 <script lang="ts">
-	import { Canvas, defaultBackgroundOptions, type BackgroundOptions } from '$lib/components/canvas';
+	import {
+		Canvas,
+		defaultBackgroundOptions,
+		defaultForegroundOptions,
+		type BackgroundOptions
+	} from '$lib/components/canvas';
 	import FileDropZone from '$lib/components/FileDropZone.svelte';
 
 	const SCALE_VALUES = [1 / 10, 1 / 9, 1 / 8, 1 / 7, 1 / 6, 1 / 5, 1 / 4, 1 / 3, 1 / 2, 1, 2, 3];
@@ -13,16 +18,31 @@
 			? 'Not applicable with “Reuse Foreground” option selected'
 			: ''
 	);
+	let disableDownload = $derived(!foregroundImageFile && !backgroundImageFile);
 
 	let mainCanvasRef: Canvas | null = null;
+	let detailStartCanvasRef: Canvas | null = null;
+	let detailCenterCanvasRef: Canvas | null = null;
+	let detailEndCanvasRef: Canvas | null = null;
 
 	function handleDownload(e: Event) {
 		e.preventDefault();
-		if (!mainCanvasRef) return;
-		const url = mainCanvasRef.getDataURL();
+
+		downloadCanvas(mainCanvasRef, 0);
+		downloadCanvas(detailStartCanvasRef, 1);
+		downloadCanvas(detailCenterCanvasRef, 2);
+		downloadCanvas(detailEndCanvasRef, 3);
+	}
+
+	function downloadCanvas(canvas: Canvas | null, idx: number) {
+		if (!canvas) return;
+
+		const url = canvas.getDataURL();
+		if (!url) return;
+
 		const a = document.createElement('a');
 		a.href = url;
-		a.download = 'squarerizer.png';
+		a.download = `squarerizer_${idx}.png`;
 		document.body.appendChild(a);
 		a.click();
 		document.body.removeChild(a);
@@ -120,14 +140,35 @@
 	<div class="inline-block w-[560px] rounded-md border-2 border-gray-300 p-2">
 		<Canvas
 			background={{ file: backgroundImageFile, options: { ...backgroundOptions } }}
-			foreground={{ file: foregroundImageFile, options: { position: 'center' } }}
+			foreground={{ file: foregroundImageFile, options: defaultForegroundOptions }}
 			class="zoom-half"
 			bind:this={mainCanvasRef}
 		/>
 	</div>
+	<div class="flex gap-2">
+		<Canvas
+			background={{ file: null, options: { ...defaultBackgroundOptions } }}
+			foreground={{ file: foregroundImageFile, options: { mode: 'cover', position: 'start' } }}
+			class="zoom-sixth"
+			bind:this={detailStartCanvasRef}
+		/>
+		<Canvas
+			background={{ file: null, options: { ...defaultBackgroundOptions } }}
+			foreground={{ file: foregroundImageFile, options: { mode: 'cover', position: 'center' } }}
+			class="zoom-sixth"
+			bind:this={detailCenterCanvasRef}
+		/>
+		<Canvas
+			background={{ file: null, options: { ...defaultBackgroundOptions } }}
+			foreground={{ file: foregroundImageFile, options: { mode: 'cover', position: 'end' } }}
+			class="zoom-sixth"
+			bind:this={detailEndCanvasRef}
+		/>
+	</div>
 	<button
 		type="button"
-		class="mb-2 rounded-lg bg-blue-700 px-5 py-2.5 text-sm font-medium text-white hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 focus:outline-none dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-		onclick={handleDownload}>Download</button
+		class="mb-2 rounded-lg bg-blue-700 px-5 py-2.5 text-sm font-medium text-white hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 focus:outline-none disabled:cursor-not-allowed disabled:bg-gray-400 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+		onclick={handleDownload}
+		disabled={disableDownload}>Download</button
 	>
 </div>
