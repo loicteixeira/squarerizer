@@ -1,17 +1,11 @@
 <script lang="ts">
-	import Canvas, { type BackgroundOptions } from '$lib/components/Canvas.svelte';
+	import { Canvas, defaultBackgroundOptions, type BackgroundOptions } from '$lib/components/canvas';
 	import FileDropZone from '$lib/components/FileDropZone.svelte';
 
 	const SCALE_VALUES = [1 / 10, 1 / 9, 1 / 8, 1 / 7, 1 / 6, 1 / 5, 1 / 4, 1 / 3, 1 / 2, 1, 2, 3];
 
 	let backgroundImageFile = $state<File | null>(null);
-	let backgroundOptions = $state<BackgroundOptions>({
-		blur: 0,
-		brightness: 100,
-		repeat: false,
-		reuseForeground: false,
-		scale: 1
-	});
+	let backgroundOptions = $state<BackgroundOptions>(defaultBackgroundOptions);
 	let foregroundImageFile = $state<File | null>(null);
 
 	let disabledBackgroundWarning = $derived(
