@@ -8,14 +8,32 @@
 		reuseForeground: boolean;
 		scale: number;
 	};
+	export const defaultBackgroundOptions: BackgroundOptions = {
+		blur: 0,
+		brightness: 100,
+		repeat: false,
+		reuseForeground: false,
+		scale: 1
+	};
+
+	export type ForegroundOptions = {
+		position: 'start' | 'center' | 'end';
+	};
+	export const defaultForegroundOptions: ForegroundOptions = {
+		position: 'center'
+	};
 
 	type Props = {
-		background: File | null;
-		backgroundOptions: BackgroundOptions;
+		background?: { file: File | null; options: BackgroundOptions };
+		foreground?: { file: File | null; options: ForegroundOptions };
 		class?: string;
-		foreground: File | null;
 	};
-	let { background, backgroundOptions, class: klass, foreground }: Props = $props();
+
+	let {
+		background = { file: null, options: defaultBackgroundOptions },
+		foreground = { file: null, options: defaultForegroundOptions },
+		class: klass
+	}: Props = $props();
 
 	let canvasRef: HTMLCanvasElement | null = null;
 
@@ -24,8 +42,14 @@
 	function createCanvas({
 		background,
 		backgroundOptions,
-		foreground
-	}: Pick<Props, 'background' | 'backgroundOptions' | 'foreground'>) {
+		foreground,
+		foregroundOptions
+	}: {
+		background: File | null;
+		backgroundOptions: BackgroundOptions;
+		foreground: File | null;
+		foregroundOptions: ForegroundOptions;
+	}) {
 		return (canvas: HTMLCanvasElement) => {
 			const ctx = canvas.getContext('2d');
 			if (!ctx) throw new Error('Failed to get canvas context');
@@ -43,7 +67,7 @@
 					ctx,
 					backgroundOptions
 				);
-				drawForeground(foregroundImg, ctx);
+				drawForeground(foregroundImg, ctx, foregroundOptions);
 			});
 		};
 	}
@@ -60,7 +84,11 @@
 		});
 	}
 
-	function drawForeground(image: HTMLImageElement | null, ctx: CanvasRenderingContext2D) {
+	function drawForeground(
+		image: HTMLImageElement | null,
+		ctx: CanvasRenderingContext2D,
+		options: ForegroundOptions
+	) {
 		if (!image) return;
 
 		const srcSize = getImageSize(image);
@@ -83,11 +111,11 @@
 		const prevFilter = ctx.filter;
 
 		const filters: string[] = [];
-		if (backgroundOptions.blur !== 0) {
-			filters.push(`blur(${backgroundOptions.blur.toFixed(0)}px)`);
+		if (options.blur !== 0) {
+			filters.push(`blur(${options.blur.toFixed(0)}px)`);
 		}
-		if (backgroundOptions.brightness !== 100) {
-			filters.push(`brightness(${backgroundOptions.brightness}%)`);
+		if (options.brightness !== 100) {
+			filters.push(`brightness(${options.brightness}%)`);
 		}
 		ctx.filter = filters.length > 0 ? filters.join(' ') : 'none';
 
@@ -237,7 +265,12 @@
 	<div class="inline-block w-[560px] rounded-md border-2 border-gray-300 p-2">
 		<canvas
 			bind:this={canvasRef}
-			{@attach createCanvas({ background, backgroundOptions, foreground })}
+			{@attach createCanvas({
+				background: background.file,
+				backgroundOptions: background.options,
+				foreground: foreground.file,
+				foregroundOptions: foreground.options
+			})}
 			width="1080"
 			height="1080"
 			class={klass}

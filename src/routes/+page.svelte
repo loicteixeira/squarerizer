@@ -110,9 +110,8 @@
 
 <div>
 	<Canvas
-		background={backgroundImageFile}
-		backgroundOptions={{ ...backgroundOptions }}
-		foreground={foregroundImageFile}
+		background={{ file: backgroundImageFile, options: { ...backgroundOptions } }}
+		foreground={{ file: foregroundImageFile, options: { position: 'center' } }}
 		class="zoom-half"
 	/>
 </div>
