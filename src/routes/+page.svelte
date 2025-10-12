@@ -136,8 +136,8 @@
 	</div>
 </div>
 
-<div class="inline-flex flex-col items-end gap-4">
-	<div class="inline-block w-[560px] rounded-md border-2 border-gray-300 p-2">
+<div class="flex w-[560px] flex-col gap-4">
+	<div class=" rounded-md border-2 border-gray-300 p-2">
 		<Canvas
 			background={{ file: backgroundImageFile, options: { ...backgroundOptions } }}
 			foreground={{ file: foregroundImageFile, options: defaultForegroundOptions }}
@@ -167,7 +167,7 @@
 	</div>
 	<button
 		type="button"
-		class="mb-2 rounded-lg bg-blue-700 px-5 py-2.5 text-sm font-medium text-white hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 focus:outline-none disabled:cursor-not-allowed disabled:bg-gray-400 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+		class="mb-2 self-end rounded-lg bg-blue-700 px-5 py-2.5 text-sm font-medium text-white hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 focus:outline-none disabled:cursor-not-allowed disabled:bg-gray-400 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
 		onclick={handleDownload}
 		disabled={disableDownload}>Download</button
 	>
