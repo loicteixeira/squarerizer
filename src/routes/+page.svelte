@@ -13,6 +13,20 @@
 			? 'Not applicable with “Reuse Foreground” option selected'
 			: ''
 	);
+
+	let mainCanvasRef: Canvas | null = null;
+
+	function handleDownload(e: Event) {
+		e.preventDefault();
+		if (!mainCanvasRef) return;
+		const url = mainCanvasRef.getDataURL();
+		const a = document.createElement('a');
+		a.href = url;
+		a.download = 'squarerizer.png';
+		document.body.appendChild(a);
+		a.click();
+		document.body.removeChild(a);
+	}
 </script>
 
 <header class="prose mb-8">
@@ -102,10 +116,18 @@
 	</div>
 </div>
 
-<div>
-	<Canvas
-		background={{ file: backgroundImageFile, options: { ...backgroundOptions } }}
-		foreground={{ file: foregroundImageFile, options: { position: 'center' } }}
-		class="zoom-half"
-	/>
+<div class="inline-flex flex-col items-end gap-4">
+	<div class="inline-block w-[560px] rounded-md border-2 border-gray-300 p-2">
+		<Canvas
+			background={{ file: backgroundImageFile, options: { ...backgroundOptions } }}
+			foreground={{ file: foregroundImageFile, options: { position: 'center' } }}
+			class="zoom-half"
+			bind:this={mainCanvasRef}
+		/>
+	</div>
+	<button
+		type="button"
+		class="mb-2 rounded-lg bg-blue-700 px-5 py-2.5 text-sm font-medium text-white hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 focus:outline-none dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+		onclick={handleDownload}>Download</button
+	>
 </div>
