@@ -226,9 +226,16 @@ function drawPattern(
 	if (!pattern) throw new Error('Failed to create pattern');
 
 	// Apply scaling to the pattern
+	// Scale from the center of the canvas instead of the top-left.
+	// Translate the pattern coordinate system to the canvas center,
+	// scale, then translate back so scaling is performed around the center.
+	const centerX = ctx.canvas.width / 2;
+	const centerY = ctx.canvas.height / 2;
+
 	const matrix = new DOMMatrix();
-	matrix.a = scale;
-	matrix.d = scale;
+	matrix.translateSelf(centerX, centerY);
+	matrix.scaleSelf(scale, scale);
+	matrix.translateSelf(-centerX, -centerY);
 	pattern.setTransform(matrix);
 
 	// Draw the pattern
