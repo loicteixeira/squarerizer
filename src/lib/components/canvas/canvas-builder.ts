@@ -139,18 +139,14 @@ function getImageSize(
 ): Rect {
 	switch (options?.mode) {
 		case 'contain': {
-			const aspectRatio = img.width / img.height;
+			// Fit the image into the target rectangle without cropping.
+			// Do not upscale: if the image is smaller than the target, keep its natural size.
+			const widthScale = options.maxWidth / img.width;
+			const heightScale = options.maxHeight / img.height;
+			const scale = Math.min(1, Math.min(widthScale, heightScale));
 
-			let width, height;
-			if (aspectRatio < 1) {
-				// Portrait
-				height = img.height > options.maxHeight ? options.maxHeight : img.height;
-				width = height * aspectRatio;
-			} else {
-				// Landscape
-				width = img.width > options.maxWidth ? options.maxWidth : img.width;
-				height = width / aspectRatio;
-			}
+			const width = img.width * scale;
+			const height = img.height * scale;
 
 			const x = (options.maxWidth - width) / 2;
 			const y = (options.maxHeight - height) / 2;
@@ -158,20 +154,17 @@ function getImageSize(
 			return { x, y, w: width, h: height };
 		}
 		case 'cover': {
-			const aspectRatio = img.width / img.height;
+			// Fill the target rectangle; image may be cropped.
+			// Always scale so both dimensions cover the target.
+			const widthScale = options.maxWidth / img.width;
+			const heightScale = options.maxHeight / img.height;
+			const scale = Math.max(widthScale, heightScale);
 
-			let width, height;
-			if (aspectRatio < 1) {
-				// Portrait
-				width = options.maxWidth;
-				height = width / aspectRatio;
-			} else {
-				// Landscape
-				height = options.maxHeight;
-				width = img.width * aspectRatio;
-			}
+			const width = img.width * scale;
+			const height = img.height * scale;
 
-			let x, y;
+			let x: number;
+			let y: number;
 			switch (options.position) {
 				case 'start':
 					x = 0;
