@@ -9,6 +9,7 @@ export type BackgroundOptions = {
 export type ForegroundOptions = {
 	mode: 'contain' | 'cover';
 	position: 'start' | 'center' | 'end';
+	rotationInDegrees?: 0 | 90 | 180 | 270;
 };
 
 export type Rect = { x: number; y: number; w: number; h: number };

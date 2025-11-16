@@ -147,17 +147,26 @@
 	</div>
 	<div class="flex gap-2">
 		<Canvas
-			foreground={{ file: foregroundImageFile, options: { mode: 'cover', position: 'start' } }}
+			foreground={{
+				file: foregroundImageFile,
+				options: { allowRotation: true, mode: 'cover', position: 'start' }
+			}}
 			class="zoom-sixth"
 			bind:this={detailStartCanvasRef}
 		/>
 		<Canvas
-			foreground={{ file: foregroundImageFile, options: { mode: 'cover', position: 'center' } }}
+			foreground={{
+				file: foregroundImageFile,
+				options: { allowRotation: true, mode: 'cover', position: 'center' }
+			}}
 			class="zoom-sixth"
 			bind:this={detailCenterCanvasRef}
 		/>
 		<Canvas
-			foreground={{ file: foregroundImageFile, options: { mode: 'cover', position: 'end' } }}
+			foreground={{
+				file: foregroundImageFile,
+				options: { allowRotation: true, mode: 'cover', position: 'end' }
+			}}
 			class="zoom-sixth"
 			bind:this={detailEndCanvasRef}
 		/>

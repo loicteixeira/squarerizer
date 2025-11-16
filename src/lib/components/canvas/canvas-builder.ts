@@ -71,7 +71,9 @@ function drawForeground(
 		maxWidth: ctx.canvas.width,
 		maxHeight: ctx.canvas.height
 	});
-	drawImage(image, ctx, srcSize, targetSize);
+
+	const rotationInRadians = (options.rotationInDegrees ?? 0) * (Math.PI / 180);
+	drawImage(image, ctx, srcSize, targetSize, 1, rotationInRadians);
 }
 
 function drawBackground(
@@ -193,14 +195,17 @@ function drawImage(
 	ctx: CanvasRenderingContext2D,
 	sourceRect: Rect,
 	targetRect: Rect,
-	scale: number = 1
+	scale: number = 1,
+	rotationInRadians: number = 0
 ) {
 	const centerX = targetRect.x + targetRect.w / 2;
 	const centerY = targetRect.y + targetRect.h / 2;
 
 	ctx.save();
 	ctx.translate(centerX, centerY);
+	ctx.rotate(rotationInRadians);
 	ctx.scale(scale, scale);
+
 	ctx.drawImage(
 		img,
 		sourceRect.x,
