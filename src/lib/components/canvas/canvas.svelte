@@ -56,9 +56,7 @@
 		class={klass}
 	></canvas>
 
-	<!-- {#if foreground.options.allowRotation} -->
-	<!-- Temporary disable rotation feature -->
-	{#if false}
+	{#if foreground.options.allowRotation}
 		<div class="flex gap-4">
 			<button
 				class="-rotate-90 rounded text-black hover:text-blue-700"

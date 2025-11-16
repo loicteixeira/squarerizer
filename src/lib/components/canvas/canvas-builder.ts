@@ -213,15 +213,18 @@ function drawImage(
 	scale: number = 1,
 	rotationInRadians: number = 0
 ) {
+	// Scale the image around its center, and draw it into an offscreen canvas
 	const centerX = targetRect.x + targetRect.w / 2;
 	const centerY = targetRect.y + targetRect.h / 2;
 
-	ctx.save();
-	ctx.translate(centerX, centerY);
-	ctx.rotate(rotationInRadians);
-	ctx.scale(scale, scale);
+	const offscreenCanvas = new OffscreenCanvas(ctx.canvas.width, ctx.canvas.height);
+	const offscreenCtx = offscreenCanvas.getContext('2d');
+	if (!offscreenCtx) throw new Error('Failed to get canvas context');
 
-	ctx.drawImage(
+	offscreenCtx.translate(centerX, centerY);
+	offscreenCtx.scale(scale, scale);
+
+	offscreenCtx.drawImage(
 		img,
 		sourceRect.x,
 		sourceRect.y,
@@ -232,6 +235,33 @@ function drawImage(
 		targetRect.w,
 		targetRect.h
 	);
+
+	// Copy the image from the offscreen canvas to the main canvas, applying rotation if needed
+	let rotationCenterX: number;
+	let rotationCenterY: number;
+	switch (rotationInRadians) {
+		case Math.PI / 2:
+			rotationCenterX = ctx.canvas.height;
+			rotationCenterY = 0;
+			break;
+		case Math.PI:
+			rotationCenterX = ctx.canvas.width;
+			rotationCenterY = ctx.canvas.height;
+			break;
+		case (3 * Math.PI) / 2:
+			rotationCenterX = 0;
+			rotationCenterY = ctx.canvas.width;
+			break;
+		default:
+			rotationCenterX = 0;
+			rotationCenterY = 0;
+			break;
+	}
+
+	ctx.save();
+	ctx.translate(rotationCenterX, rotationCenterY);
+	ctx.rotate(rotationInRadians);
+	ctx.drawImage(offscreenCanvas, 0, 0);
 	ctx.restore();
 }
 
