@@ -1,4 +1,4 @@
-import type { BackgroundOptions, ForegroundOptions, Rect } from './canvas-types';
+import type { BackgroundOptions, ForegroundOptions, Rect, WatermarkOptions } from './canvas-types';
 
 export const defaultBackgroundOptions: BackgroundOptions = {
 	blur: 0,
@@ -13,24 +13,34 @@ export const defaultForegroundOptions: ForegroundOptions = {
 	position: 'center'
 };
 
+export const defaultWatermarkOptions = {
+	opacity: 0.8,
+	position: 'bottom-right' as const,
+	scale: 1
+};
+
 export function createCanvas({
 	background,
 	backgroundOptions,
 	foreground,
-	foregroundOptions
+	foregroundOptions,
+	watermark,
+	watermarkOptions
 }: {
 	background: File | null;
 	backgroundOptions: BackgroundOptions;
 	foreground: File | null;
 	foregroundOptions: ForegroundOptions;
+	watermark: File | null;
+	watermarkOptions: WatermarkOptions;
 }) {
 	return (canvas: HTMLCanvasElement) => {
 		const ctx = canvas.getContext('2d');
 		if (!ctx) throw new Error('Failed to get canvas context');
 
 		// Load the images first (async), and only then draw them to avoid out of order painting
-		const imagePromises = [loadImage(background), loadImage(foreground)];
-		Promise.all(imagePromises).then(([backgroundImg, foregroundImg]) => {
+		const imagePromises = [loadImage(background), loadImage(foreground), loadImage(watermark)];
+		Promise.all(imagePromises).then(([backgroundImg, foregroundImg, watermarkImg]) => {
 			// Clear the canvas
 			ctx.fillStyle = '#ccc';
 			ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -42,6 +52,11 @@ export function createCanvas({
 				backgroundOptions
 			);
 			drawForeground(foregroundImg, ctx, foregroundOptions);
+
+			// Draw watermark on top if provided
+			if (watermarkImg) {
+				drawWatermark(watermarkImg, ctx, watermarkOptions);
+			}
 		});
 	};
 }
@@ -247,5 +262,50 @@ function drawPattern(
 	ctx.save();
 	ctx.fillStyle = pattern;
 	ctx.fillRect(rect.x, rect.y, rect.w, rect.h);
+	ctx.restore();
+}
+
+function drawWatermark(
+	img: HTMLImageElement,
+	ctx: CanvasRenderingContext2D,
+	options: WatermarkOptions
+) {
+	// Compute size, using options.scale as a multiplier of the base size
+	const srcWidth = img.width;
+	const srcHeight = img.height;
+
+	const targetWidth = srcWidth * options.scale;
+	const targetHeight = srcHeight * options.scale;
+
+	// Compute position with some padding
+	const shorterSide = Math.min(ctx.canvas.width, ctx.canvas.height);
+	const padding = Math.round(shorterSide * 0.03);
+
+	let x = 0;
+	let y = 0;
+	switch (options.position) {
+		case 'top-left':
+			x = padding;
+			y = padding;
+			break;
+		case 'top-right':
+			x = ctx.canvas.width - padding - targetWidth;
+			y = padding;
+			break;
+		case 'bottom-left':
+			x = padding;
+			y = ctx.canvas.height - padding - targetHeight;
+			break;
+		case 'bottom-right':
+		default:
+			x = ctx.canvas.width - padding - targetWidth;
+			y = ctx.canvas.height - padding - targetHeight;
+			break;
+	}
+
+	// Draw the watermark
+	ctx.save();
+	ctx.globalAlpha = Math.max(0, Math.min(options.opacity, 1));
+	ctx.drawImage(img, 0, 0, srcWidth, srcHeight, x, y, targetWidth, targetHeight);
 	ctx.restore();
 }

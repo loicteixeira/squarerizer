@@ -4,23 +4,30 @@
 	import {
 		createCanvas,
 		defaultBackgroundOptions,
-		defaultForegroundOptions
+		defaultForegroundOptions,
+		defaultWatermarkOptions
 	} from './canvas-builder';
-	import { type BackgroundOptions, type ForegroundOptions } from './canvas-types';
+	import {
+		type BackgroundOptions,
+		type ForegroundOptions,
+		type WatermarkOptions
+	} from './canvas-types';
 
 	type Props = {
 		background?: { file: File | null; options: BackgroundOptions };
 		class?: string;
-		foreground?: {
+		foreground: {
 			file: File | null;
 			options: Omit<ForegroundOptions, 'rotationInDegrees'> & { allowRotation?: boolean };
 		};
+		watermark?: { file: File | null; options: WatermarkOptions };
 	};
 
 	let {
 		background = { file: null, options: defaultBackgroundOptions },
 		class: klass,
-		foreground = { file: null, options: { ...defaultForegroundOptions, allowRotation: false } }
+		foreground = { file: null, options: { ...defaultForegroundOptions, allowRotation: false } },
+		watermark = { file: null, options: defaultWatermarkOptions }
 	}: Props = $props();
 
 	let rotationInDegrees = $state<ForegroundOptions['rotationInDegrees']>(0 as const);
@@ -40,7 +47,9 @@
 			background: background.file,
 			backgroundOptions: background.options,
 			foreground: foreground.file,
-			foregroundOptions: { ...foreground.options, rotationInDegrees: rotationInDegrees }
+			foregroundOptions: { ...foreground.options, rotationInDegrees: rotationInDegrees },
+			watermark: watermark.file,
+			watermarkOptions: watermark.options
 		})}
 		width="1080"
 		height="1080"
