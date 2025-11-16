@@ -53,13 +53,18 @@
 	function handleDownload(e: Event) {
 		e.preventDefault();
 
-		downloadCanvas(mainCanvasRef, 0);
-		downloadCanvas(detailStartCanvasRef, 1);
-		downloadCanvas(detailCenterCanvasRef, 2);
-		downloadCanvas(detailEndCanvasRef, 3);
+		const now = new Date()
+			.toISOString()
+			.replace(/\.\d{3}Z$/, '')
+			.replace(/[^\w]/g, '');
+
+		downloadCanvas(mainCanvasRef, `${now}_0_full`);
+		downloadCanvas(detailStartCanvasRef, `${now}_1_zoom_start`);
+		downloadCanvas(detailCenterCanvasRef, `${now}_2_zoom_center`);
+		downloadCanvas(detailEndCanvasRef, `${now}_3_zoom_end`);
 	}
 
-	function downloadCanvas(canvas: Canvas | null, idx: number) {
+	function downloadCanvas(canvas: Canvas | null, filename: string) {
 		if (!canvas) return;
 
 		const url = canvas.getDataURL();
@@ -67,7 +72,7 @@
 
 		const a = document.createElement('a');
 		a.href = url;
-		a.download = `squarerizer_${idx}.png`;
+		a.download = `${filename}.png`;
 		document.body.appendChild(a);
 		a.click();
 		document.body.removeChild(a);
