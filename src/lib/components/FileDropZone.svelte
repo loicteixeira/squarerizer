@@ -73,14 +73,21 @@
 			</div>
 		{:else if preview}
 			<div
-				class="flex h-full w-full justify-center rounded-md border-2 border-dashed border-gray-300 bg-gray-50 p-2"
+				class={[
+					'flex h-full w-full items-center justify-center rounded-md border-2 border-dashed p-2 text-center text-gray-500 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500 hover:bg-gray-100 hover:text-gray-700',
+					isDragging ? 'border-blue-400 bg-blue-50' : 'border-gray-300 bg-gray-50'
+				]}
+				ondragenter={onDragEnter}
+				ondragover={onDragOver}
+				ondragleave={onDragLeave}
+				ondrop={onDrop}
 			>
-				<img src={preview} alt="Preview" class="max-h-full object-contain" />
+				<img src={preview} alt="Preview" class="pointer-events-none max-h-full object-contain" />
 			</div>
 		{:else}
 			<label
 				class={[
-					'flex h-full w-full items-center rounded-md border-2 border-dashed  p-8 text-center text-gray-500 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500 hover:bg-gray-100 hover:text-gray-700',
+					'flex h-full w-full items-center justify-center rounded-md border-2 border-dashed p-2 text-center text-gray-500 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500 hover:bg-gray-100 hover:text-gray-700',
 					isDragging ? 'border-blue-400 bg-blue-50' : 'border-gray-300 bg-gray-50'
 				]}
 				ondragenter={onDragEnter}
