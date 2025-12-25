@@ -8,6 +8,7 @@
 	import { defaultWatermarkOptions } from '$lib/components/canvas/canvas-builder';
 	import type { WatermarkOptions } from '$lib/components/canvas/canvas-types';
 	import FileDropZone from '$lib/components/FileDropZone.svelte';
+	import { useLocalStorage } from '$lib/useLocalStorage.svelte';
 
 	const BACKGROUND_SCALE_VALUES = [
 		...Array.from({ length: 9 }, (_v: number, index: number) => 1 / (index + 2)).reverse(),
@@ -29,14 +30,22 @@
 		{ value: 'bottom-right', label: 'Bottom Right' }
 	];
 
+	// const storage = useLocalStorage<RetailFormState>('calculator-state', startingData);
+
 	let backgroundImageFile = $state<File | null>(null);
-	let backgroundOptions = $state<BackgroundOptions>(defaultBackgroundOptions);
+	let backgroundOptions = useLocalStorage<BackgroundOptions>(
+		'squarerizer-background-options',
+		defaultBackgroundOptions
+	);
 	let foregroundImageFile = $state<File | null>(null);
 	let watermarkImageFile = $state<File | null>(null);
-	let watermarkOptions = $state<WatermarkOptions>(defaultWatermarkOptions);
+	let watermarkOptions = useLocalStorage<WatermarkOptions>(
+		'squarerizer-watermark-options',
+		defaultWatermarkOptions
+	);
 
 	let disabledBackgroundWarning = $derived(
-		backgroundOptions.reuseForeground
+		backgroundOptions.value.reuseForeground
 			? 'Not applicable with “Reuse Foreground” option selected'
 			: ''
 	);
@@ -108,7 +117,7 @@
 						min="0"
 						max="16"
 						step="2"
-						bind:value={backgroundOptions.blur}
+						bind:value={backgroundOptions.value.blur}
 					/>
 					<span class="absolute start-0 -bottom-4 text-sm text-gray-500 dark:text-gray-400"
 						>0px</span
@@ -126,7 +135,7 @@
 						min="50"
 						max="150"
 						step="5"
-						bind:value={backgroundOptions.brightness}
+						bind:value={backgroundOptions.value.brightness}
 					/>
 					<span class="absolute start-0 -bottom-4 text-sm text-gray-500 dark:text-gray-400"
 						>-50%</span
@@ -137,7 +146,7 @@
 			</label>
 			<label class="flex cursor-pointer justify-between gap-4">
 				Repeat
-				<input type="checkbox" bind:checked={backgroundOptions.repeat} class="peer sr-only" />
+				<input type="checkbox" bind:checked={backgroundOptions.value.repeat} class="peer sr-only" />
 				<div
 					class="peer relative h-6 w-11 rounded-full bg-gray-200 peer-checked:bg-blue-600 peer-focus:ring-4 peer-focus:ring-blue-300 peer-focus:outline-none after:absolute after:start-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:after:translate-x-full peer-checked:after:border-white rtl:peer-checked:after:-translate-x-full dark:border-gray-600 dark:bg-gray-700 dark:peer-checked:bg-blue-600 dark:peer-focus:ring-blue-800"
 				></div>
@@ -146,7 +155,7 @@
 				Reuse Foreground
 				<input
 					type="checkbox"
-					bind:checked={backgroundOptions.reuseForeground}
+					bind:checked={backgroundOptions.value.reuseForeground}
 					class="peer sr-only"
 				/>
 				<div
@@ -163,8 +172,8 @@
 						max={BACKGROUND_SCALE_VALUES.length - 1}
 						step="1"
 						bind:value={
-							() => BACKGROUND_SCALE_VALUES.findIndex((v) => v === backgroundOptions.scale),
-							(v) => (backgroundOptions.scale = BACKGROUND_SCALE_VALUES[v])
+							() => BACKGROUND_SCALE_VALUES.findIndex((v) => v === backgroundOptions.value.scale),
+							(v) => (backgroundOptions.value.scale = BACKGROUND_SCALE_VALUES[v])
 						}
 					/>
 					<span class="absolute start-0 -bottom-4 text-sm text-gray-500 dark:text-gray-400"
@@ -195,8 +204,8 @@
 						max={WATERMARK_OPACITY_VALUES.length - 1}
 						step="1"
 						bind:value={
-							() => WATERMARK_OPACITY_VALUES.findIndex((v) => v === watermarkOptions.opacity),
-							(v) => (watermarkOptions.opacity = WATERMARK_OPACITY_VALUES[v])
+							() => WATERMARK_OPACITY_VALUES.findIndex((v) => v === watermarkOptions.value.opacity),
+							(v) => (watermarkOptions.value.opacity = WATERMARK_OPACITY_VALUES[v])
 						}
 					/>
 					<span class="absolute start-0 -bottom-4 text-sm text-gray-500 dark:text-gray-400"
@@ -212,7 +221,7 @@
 				<div class="ml-2 flex flex-col">
 					{#each WATERMARK_POSITIONS as { value, label }}
 						<label>
-							<input type="radio" bind:group={watermarkOptions.position} {value} />
+							<input type="radio" bind:group={watermarkOptions.value.position} {value} />
 							{label}
 						</label>
 					{/each}
@@ -228,8 +237,8 @@
 						max={WATERMARK_SCALE_VALUES.length - 1}
 						step="1"
 						bind:value={
-							() => WATERMARK_SCALE_VALUES.findIndex((v) => v === watermarkOptions.scale),
-							(v) => (watermarkOptions.scale = WATERMARK_SCALE_VALUES[v])
+							() => WATERMARK_SCALE_VALUES.findIndex((v) => v === watermarkOptions.value.scale),
+							(v) => (watermarkOptions.value.scale = WATERMARK_SCALE_VALUES[v])
 						}
 					/>
 					<span class="absolute start-0 -bottom-4 text-sm text-gray-500 dark:text-gray-400"
@@ -247,9 +256,9 @@
 <div class="flex w-[560px] flex-col gap-4">
 	<div>
 		<Canvas
-			background={{ file: backgroundImageFile, options: { ...backgroundOptions } }}
+			background={{ file: backgroundImageFile, options: { ...backgroundOptions.value } }}
 			foreground={{ file: foregroundImageFile, options: defaultForegroundOptions }}
-			watermark={{ file: watermarkImageFile, options: { ...watermarkOptions } }}
+			watermark={{ file: watermarkImageFile, options: { ...watermarkOptions.value } }}
 			class="zoom-half"
 			caption="Original artwork with background fill"
 			bind:this={mainCanvasRef}
@@ -261,7 +270,7 @@
 				file: foregroundImageFile,
 				options: { allowRotation: true, mode: 'cover', position: 'start' }
 			}}
-			watermark={{ file: watermarkImageFile, options: { ...watermarkOptions } }}
+			watermark={{ file: watermarkImageFile, options: { ...watermarkOptions.value } }}
 			class="zoom-sixth"
 			caption="Zoom-in crop of one side"
 			bind:this={detailStartCanvasRef}
@@ -271,7 +280,7 @@
 				file: foregroundImageFile,
 				options: { allowRotation: true, mode: 'cover', position: 'center' }
 			}}
-			watermark={{ file: watermarkImageFile, options: { ...watermarkOptions } }}
+			watermark={{ file: watermarkImageFile, options: { ...watermarkOptions.value } }}
 			class="zoom-sixth"
 			caption="Zoom-in crop of center"
 			bind:this={detailCenterCanvasRef}
@@ -281,7 +290,7 @@
 				file: foregroundImageFile,
 				options: { allowRotation: true, mode: 'cover', position: 'end' }
 			}}
-			watermark={{ file: watermarkImageFile, options: { ...watermarkOptions } }}
+			watermark={{ file: watermarkImageFile, options: { ...watermarkOptions.value } }}
 			class="zoom-sixth"
 			caption="Zoom-in crop of other side"
 			bind:this={detailEndCanvasRef}
