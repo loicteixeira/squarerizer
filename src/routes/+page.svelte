@@ -80,16 +80,25 @@
 </script>
 
 <header class="prose mb-8">
-	<h1>Squarerizer</h1>
+	<h1 class="mb-2">Squarerizer</h1>
+	<p class="mt-0">
+		Crop your tall or wide artwork and photos into a series of square images, perfect for Instagram
+		and other social media! Works best on desktop or large screens.
+	</p>
 </header>
 
 <div class="mb-8 flex flex-wrap gap-24">
-	<FileDropZone bind:file={foregroundImageFile} title="Foreground Image" />
+	<FileDropZone
+		bind:file={foregroundImageFile}
+		caption="Upload your full-sized tall or wide artwork."
+		title="Foreground Image"
+	/>
 	<div class="flex gap-8">
 		<FileDropZone
 			bind:file={backgroundImageFile}
-			title="Background Image"
+			caption="Optionally add a background to fill the first square crop."
 			disabledText={disabledBackgroundWarning}
+			title="Background Image"
 		/>
 		<div class="flex flex-col gap-2">
 			<p class="text-lg font-medium">Background Options</p>
@@ -172,7 +181,11 @@
 		</div>
 	</div>
 	<div class="flex gap-8">
-		<FileDropZone bind:file={watermarkImageFile} title="Watermark Image" />
+		<FileDropZone
+			bind:file={watermarkImageFile}
+			caption="Optionally add a watermark to each image."
+			title="Watermark Image"
+		/>
 		<div class="flex flex-col gap-2">
 			<p class="text-lg font-medium">Watermark Options</p>
 			<label class="relative mb-4 flex justify-between gap-4">
@@ -235,12 +248,13 @@
 </div>
 
 <div class="flex w-[560px] flex-col gap-4">
-	<div class=" rounded-md border-2 border-gray-300 p-2">
+	<div>
 		<Canvas
 			background={{ file: backgroundImageFile, options: { ...backgroundOptions } }}
 			foreground={{ file: foregroundImageFile, options: defaultForegroundOptions }}
 			watermark={{ file: watermarkImageFile, options: { ...watermarkOptions } }}
 			class="zoom-half"
+			caption="Original artwork with background fill"
 			bind:this={mainCanvasRef}
 		/>
 	</div>
@@ -252,6 +266,7 @@
 			}}
 			watermark={{ file: watermarkImageFile, options: { ...watermarkOptions } }}
 			class="zoom-sixth"
+			caption="Zoom-in crop of one side"
 			bind:this={detailStartCanvasRef}
 		/>
 		<Canvas
@@ -261,6 +276,7 @@
 			}}
 			watermark={{ file: watermarkImageFile, options: { ...watermarkOptions } }}
 			class="zoom-sixth"
+			caption="Zoom-in crop of center"
 			bind:this={detailCenterCanvasRef}
 		/>
 		<Canvas
@@ -270,13 +286,20 @@
 			}}
 			watermark={{ file: watermarkImageFile, options: { ...watermarkOptions } }}
 			class="zoom-sixth"
+			caption="Zoom-in crop of other side"
 			bind:this={detailEndCanvasRef}
 		/>
 	</div>
-	<button
-		type="button"
-		class="mb-2 self-end rounded-lg bg-blue-700 px-5 py-2.5 text-sm font-medium text-white hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 focus:outline-none disabled:cursor-not-allowed disabled:bg-gray-400 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-		onclick={handleDownload}
-		disabled={disableDownload}>Download</button
-	>
+
+	<div class="flex flex-col items-end gap-1">
+		<button
+			type="button"
+			class="rounded-lg bg-blue-700 px-5 py-2.5 text-sm font-medium text-white hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 focus:outline-none disabled:cursor-not-allowed disabled:bg-gray-400 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+			onclick={handleDownload}
+			disabled={disableDownload}>Download All</button
+		>
+		<p class="w-3xs text-right text-sm text-gray-600">
+			Your browser may prompt you for permission to download multiple files.
+		</p>
+	</div>
 </div>

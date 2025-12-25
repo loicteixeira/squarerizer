@@ -1,6 +1,11 @@
 <script lang="ts">
-	type Props = { file: File | null; disabledText?: string; title: string };
-	let { file = $bindable(), disabledText, title }: Props = $props();
+	type Props = {
+		caption?: string;
+		disabledText?: string;
+		file: File | null;
+		title: string;
+	};
+	let { caption, disabledText, file = $bindable(), title }: Props = $props();
 
 	let isDragging = $state(false);
 
@@ -46,12 +51,17 @@
 </script>
 
 <div class="flex w-48 flex-col gap-2">
-	<div class="flex justify-between">
-		<p class="text-lg font-medium">{title}</p>
-		{#if preview && !disabledText}
-			<button name="Remove main image" onclick={onDelete}>
-				<span class="not-sr-only">🗑️</span>
-			</button>
+	<div>
+		<div class="flex justify-between">
+			<p class="text-lg font-medium">{title}</p>
+			{#if preview && !disabledText}
+				<button name="Remove main image" onclick={onDelete}>
+					<span class="not-sr-only">🗑️</span>
+				</button>
+			{/if}
+		</div>
+		{#if caption}
+			<p class="text-sm text-gray-600">{caption}</p>
 		{/if}
 	</div>
 	<div class="relative h-48 w-48">

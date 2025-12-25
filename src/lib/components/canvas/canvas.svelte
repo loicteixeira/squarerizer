@@ -15,6 +15,7 @@
 
 	type Props = {
 		background?: { file: File | null; options: BackgroundOptions };
+		caption?: string;
 		class?: string;
 		foreground: {
 			file: File | null;
@@ -25,6 +26,7 @@
 
 	let {
 		background = { file: null, options: defaultBackgroundOptions },
+		caption,
 		class: klass,
 		foreground = { file: null, options: { ...defaultForegroundOptions, allowRotation: false } },
 		watermark = { file: null, options: defaultWatermarkOptions }
@@ -40,7 +42,10 @@
 	}
 </script>
 
-<div class="flex flex-col items-center gap-2">
+<div class="flex flex-col items-center gap-1">
+	{#if caption}
+		<p class="text-center text-sm text-gray-600">{caption}</p>
+	{/if}
 	<canvas
 		bind:this={canvasRef}
 		{@attach createCanvas({
