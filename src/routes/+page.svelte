@@ -10,21 +10,18 @@
 	import FileDropZone from '$lib/components/FileDropZone.svelte';
 
 	const BACKGROUND_SCALE_VALUES = [
-		1 / 10,
-		1 / 9,
-		1 / 8,
-		1 / 7,
-		1 / 6,
-		1 / 5,
-		1 / 4,
-		1 / 3,
-		1 / 2,
+		...Array.from({ length: 9 }, (_v: number, index: number) => 1 / (index + 2)).reverse(),
 		1,
 		2,
 		3
 	];
 	const WATERMARK_OPACITY_VALUES = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1];
-	const WATERMARK_SCALE_VALUES = [1 / 3, 1 / 2, 1, 2, 3];
+	const WATERMARK_SCALE_VALUES = [
+		...Array.from({ length: 39 }, (_v: number, index: number) => 1 / (index + 2)).reverse(),
+		1,
+		2,
+		3
+	];
 	const WATERMARK_POSITIONS = [
 		{ value: 'top-left', label: 'Top Left' },
 		{ value: 'top-right', label: 'Top Right' },

@@ -16,7 +16,7 @@ export const defaultForegroundOptions: ForegroundOptions = {
 export const defaultWatermarkOptions = {
 	opacity: 0.8,
 	position: 'bottom-right' as const,
-	scale: 1
+	scale: 1 / 20
 };
 
 export function createCanvas({
