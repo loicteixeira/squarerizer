@@ -12,6 +12,10 @@ export type ForegroundOptions = {
 	rotationInDegrees?: 0 | 90 | 180 | 270;
 };
 
+export type GeneralOptions = {
+	format: '1:1-1080x1080px' | '4:5-1080x1350px';
+};
+
 export type WatermarkOptions = {
 	opacity: number;
 	position: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';

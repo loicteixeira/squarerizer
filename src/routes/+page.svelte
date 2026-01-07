@@ -5,8 +5,11 @@
 		defaultForegroundOptions,
 		type BackgroundOptions
 	} from '$lib/components/canvas';
-	import { defaultWatermarkOptions } from '$lib/components/canvas/canvas-builder';
-	import type { WatermarkOptions } from '$lib/components/canvas/canvas-types';
+	import {
+		defaultGeneralOptions,
+		defaultWatermarkOptions
+	} from '$lib/components/canvas/canvas-builder';
+	import type { GeneralOptions, WatermarkOptions } from '$lib/components/canvas/canvas-types';
 	import FileDropZone from '$lib/components/FileDropZone.svelte';
 	import { useLocalStorage } from '$lib/useLocalStorage.svelte';
 
@@ -30,12 +33,14 @@
 		{ value: 'bottom-right', label: 'Bottom Right' }
 	];
 
-	// const storage = useLocalStorage<RetailFormState>('calculator-state', startingData);
-
 	let backgroundImageFile = $state<File | null>(null);
 	let backgroundOptions = useLocalStorage<BackgroundOptions>(
 		'squarerizer-background-options',
 		defaultBackgroundOptions
+	);
+	let generalOptions = useLocalStorage<GeneralOptions>(
+		'squarerizer-general-options',
+		defaultGeneralOptions
 	);
 	let foregroundImageFile = $state<File | null>(null);
 	let watermarkImageFile = $state<File | null>(null);
@@ -88,12 +93,25 @@
 <header class="prose mb-8">
 	<h1 class="mb-2">Squarerizer</h1>
 	<p class="mt-0">
-		Crop your tall or wide artwork and photos into a series of square-ish images (4:5 ratio,
-		1080x1350 px), perfect for Instagram and other social media! Works best on desktop or large
-		screens.
+		Crop your tall or wide artwork and photos into a series of square-ish images, perfect for
+		Instagram and other social media! Works best on desktop or large screens.
 	</p>
 </header>
 
+<div class="mb-8 flex flex-col gap-2">
+	<p class="text-lg font-medium">General Options</p>
+	<fieldset class="flex gap-4">
+		<legend class="float-left">Format:</legend>
+		<label>
+			<input type="radio" bind:group={generalOptions.value.format} value="1:1-1080x1080px" />
+			Square - 1080<small>x</small>1080 px
+		</label>
+		<label>
+			<input type="radio" bind:group={generalOptions.value.format} value="4:5-1080x1350px" />
+			4:5 - 1080<small>x</small>1350 px
+		</label>
+	</fieldset>
+</div>
 <div class="mb-8 flex flex-wrap gap-24">
 	<FileDropZone
 		bind:file={foregroundImageFile}
@@ -259,6 +277,7 @@
 		<Canvas
 			background={{ file: backgroundImageFile, options: { ...backgroundOptions.value } }}
 			foreground={{ file: foregroundImageFile, options: defaultForegroundOptions }}
+			generalOptions={generalOptions.value}
 			watermark={{ file: watermarkImageFile, options: { ...watermarkOptions.value } }}
 			class="zoom-half"
 			caption="Original artwork with background fill"
@@ -271,6 +290,7 @@
 				file: foregroundImageFile,
 				options: { allowRotation: true, mode: 'cover', position: 'start' }
 			}}
+			generalOptions={generalOptions.value}
 			watermark={{ file: watermarkImageFile, options: { ...watermarkOptions.value } }}
 			class="zoom-sixth"
 			caption="Zoom-in crop of one side"
@@ -281,6 +301,7 @@
 				file: foregroundImageFile,
 				options: { allowRotation: true, mode: 'cover', position: 'center' }
 			}}
+			generalOptions={generalOptions.value}
 			watermark={{ file: watermarkImageFile, options: { ...watermarkOptions.value } }}
 			class="zoom-sixth"
 			caption="Zoom-in crop of center"
@@ -291,6 +312,7 @@
 				file: foregroundImageFile,
 				options: { allowRotation: true, mode: 'cover', position: 'end' }
 			}}
+			generalOptions={generalOptions.value}
 			watermark={{ file: watermarkImageFile, options: { ...watermarkOptions.value } }}
 			class="zoom-sixth"
 			caption="Zoom-in crop of other side"

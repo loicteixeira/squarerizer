@@ -1,4 +1,10 @@
-import type { BackgroundOptions, ForegroundOptions, Rect, WatermarkOptions } from './canvas-types';
+import type {
+	BackgroundOptions,
+	ForegroundOptions,
+	GeneralOptions,
+	Rect,
+	WatermarkOptions
+} from './canvas-types';
 
 export const defaultBackgroundOptions: BackgroundOptions = {
 	blur: 0,
@@ -13,6 +19,10 @@ export const defaultForegroundOptions: ForegroundOptions = {
 	position: 'center'
 };
 
+export const defaultGeneralOptions: GeneralOptions = {
+	format: '4:5-1080x1350px'
+};
+
 export const defaultWatermarkOptions = {
 	opacity: 0.8,
 	position: 'bottom-right' as const,
@@ -24,6 +34,7 @@ export function createCanvas({
 	backgroundOptions,
 	foreground,
 	foregroundOptions,
+	size,
 	watermark,
 	watermarkOptions
 }: {
@@ -31,6 +42,7 @@ export function createCanvas({
 	backgroundOptions: BackgroundOptions;
 	foreground: File | null;
 	foregroundOptions: ForegroundOptions;
+	size: { width: number; height: number };
 	watermark: File | null;
 	watermarkOptions: WatermarkOptions;
 }) {
@@ -43,7 +55,7 @@ export function createCanvas({
 		Promise.all(imagePromises).then(([backgroundImg, foregroundImg, watermarkImg]) => {
 			// Clear the canvas
 			ctx.fillStyle = '#ccc';
-			ctx.fillRect(0, 0, canvas.width, canvas.height);
+			ctx.fillRect(0, 0, size.width, size.height);
 
 			// Draw images
 			drawBackground(

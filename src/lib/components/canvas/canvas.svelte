@@ -10,6 +10,7 @@
 	import {
 		type BackgroundOptions,
 		type ForegroundOptions,
+		type GeneralOptions,
 		type WatermarkOptions
 	} from './canvas-types';
 
@@ -21,6 +22,7 @@
 			file: File | null;
 			options: Omit<ForegroundOptions, 'rotationInDegrees'> & { allowRotation?: boolean };
 		};
+		generalOptions: GeneralOptions;
 		watermark?: { file: File | null; options: WatermarkOptions };
 	};
 
@@ -29,12 +31,23 @@
 		caption,
 		class: klass,
 		foreground = { file: null, options: { ...defaultForegroundOptions, allowRotation: false } },
+		generalOptions,
 		watermark = { file: null, options: defaultWatermarkOptions }
 	}: Props = $props();
 
 	let rotationInDegrees = $state<ForegroundOptions['rotationInDegrees']>(0 as const);
 
 	let canvasRef: HTMLCanvasElement | null = null;
+
+	let size = $derived.by(() => {
+		switch (generalOptions.format) {
+			case '1:1-1080x1080px':
+				return { width: 1080, height: 1080 };
+			case '4:5-1080x1350px':
+			default:
+				return { width: 1080, height: 1350 };
+		}
+	});
 
 	export function getDataURL() {
 		if (!canvasRef) return null;
@@ -53,11 +66,12 @@
 			backgroundOptions: background.options,
 			foreground: foreground.file,
 			foregroundOptions: { ...foreground.options, rotationInDegrees: rotationInDegrees },
+			size,
 			watermark: watermark.file,
 			watermarkOptions: watermark.options
 		})}
-		width="1080"
-		height="1350"
+		width={size.width}
+		height={size.height}
 		class={klass}
 	></canvas>
 
