@@ -88,8 +88,9 @@
 <header class="prose mb-8">
 	<h1 class="mb-2">Squarerizer</h1>
 	<p class="mt-0">
-		Crop your tall or wide artwork and photos into a series of square images, perfect for Instagram
-		and other social media! Works best on desktop or large screens.
+		Crop your tall or wide artwork and photos into a series of square-ish images (4:5 ratio,
+		1080x1350 px), perfect for Instagram and other social media! Works best on desktop or large
+		screens.
 	</p>
 </header>
 
